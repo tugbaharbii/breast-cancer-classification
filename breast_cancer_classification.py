@@ -1,13 +1,4 @@
-# =============================================================================
-# Meme Kanseri Sınıflandırması - Random Forest
-# Breast Cancer Wisconsin Dataset
-#
-# Öğrenci No : _______________
-# Ad Soyad   : _______________
-# GitHub     : github.com/_______________
-# =============================================================================
 
-# ── 1. Kütüphane İmportları ──────────────────────────────────────────────────
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,8 +15,7 @@ from sklearn.metrics import (
     classification_report,
 )
 
-# ── 2. Veri Yükleme ──────────────────────────────────────────────────────────
-# Dosya yolunu kendi sisteminize göre düzenleyin
+
 yol = r'C:\Users\hp\Downloads\data.xlsx'
 df = pd.read_excel(yol)
 
@@ -38,28 +28,24 @@ print(f"Sütun sayısı  : {df.shape[1]}")
 print(f"\nSınıf Dağılımı:\n{df['diagnosis'].value_counts()}")
 print(f"\nİlk 5 Satır:\n{df.head()}")
 
-# ── 3. Ön İşleme ─────────────────────────────────────────────────────────────
-# Gereksiz sütunu kaldır
+
 df = df.drop(columns=["id"])
 
-# Hedef değişkeni sayısala çevir: M (Malignant/Kötü Huylu) = 1, B (Benign/İyi Huylu) = 0
+
 df["diagnosis"] = df["diagnosis"].map({"M": 1, "B": 0})
 
-# Tüm öznitelik sütunlarını sayısala zorla, hatalı değerleri NaN yap
+
 for col in df.columns:
     if col != "diagnosis":
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
-# Eksik değer içeren satırları temizle
 df = df.dropna()
 
 print(f"\nTemizlik sonrası satır sayısı: {df.shape[0]}")
 
-# ── 4. Öznitelik / Hedef Ayrımı ──────────────────────────────────────────────
 X = df.drop(columns=["diagnosis"])
 y = df["diagnosis"]
 
-# ── 5. Eğitim / Test Ayrımı (%80 - %20) ─────────────────────────────────────
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
@@ -67,16 +53,13 @@ X_train, X_test, y_train, y_test = train_test_split(
 print(f"\nEğitim seti boyutu : {X_train.shape[0]} örnek")
 print(f"Test seti boyutu   : {X_test.shape[0]} örnek")
 
-# ── 6. Model Eğitimi: Random Forest ──────────────────────────────────────────
 model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 
 print("\nModel başarıyla eğitildi!")
 
-# ── 7. Tahmin ────────────────────────────────────────────────────────────────
 y_pred = model.predict(X_test)
 
-# ── 8. Değerlendirme Metrikleri ───────────────────────────────────────────────
 accuracy  = accuracy_score(y_test, y_pred)
 precision = precision_score(y_test, y_pred)
 recall    = recall_score(y_test, y_pred)
@@ -92,11 +75,9 @@ print(f"F1-Score                : {f1:.4f}  (%{f1*100:.2f})")
 print("\nDetaylı Sınıflandırma Raporu:")
 print(classification_report(y_test, y_pred, target_names=["Benign (İyi Huylu)", "Malignant (Kötü Huylu)"]))
 
-# ── 9. GÖRSELLEŞTİRME ────────────────────────────────────────────────────────
 fig, axes = plt.subplots(1, 3, figsize=(20, 6))
 fig.suptitle("Meme Kanseri Sınıflandırması - Random Forest Sonuçları", fontsize=15, fontweight="bold")
 
-# ── 9a. Sınıf Dağılımı (Pasta Grafik) ────────────────────────────────────────
 class_counts = y.value_counts()
 axes[0].pie(
     class_counts,
@@ -108,7 +89,6 @@ axes[0].pie(
 )
 axes[0].set_title("Sınıf Dağılımı", fontsize=13)
 
-# ── 9b. Confusion Matrix ─────────────────────────────────────────────────────
 cm = confusion_matrix(y_test, y_pred)
 sns.heatmap(
     cm,
@@ -124,7 +104,6 @@ axes[1].set_title("Confusion Matrix", fontsize=13)
 axes[1].set_xlabel("Tahmin Edilen Sınıf")
 axes[1].set_ylabel("Gerçek Sınıf")
 
-# ── 9c. Feature Importance (Top 15) ──────────────────────────────────────────
 feature_importances = pd.Series(model.feature_importances_, index=X.columns)
 top15 = feature_importances.sort_values(ascending=True).tail(15)
 
@@ -139,7 +118,6 @@ plt.savefig("results.png", dpi=150, bbox_inches="tight")
 plt.show()
 print("\nGörseller 'results.png' olarak kaydedildi.")
 
-# ── 10. Metrik Özet Grafik ────────────────────────────────────────────────────
 metrics = {
     "Accuracy\n(Doğruluk)": accuracy,
     "Precision\n(Kesinlik)": precision,
